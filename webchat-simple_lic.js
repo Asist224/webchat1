@@ -624,8 +624,8 @@ linkifyText(text) {
             cleanUrl = cleanUrl.slice(0, -trailingPunctuation.length);
         }
 
-        // Создаем ссылку с безопасными атрибутами
-        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${cleanUrl}</a>${trailingPunctuation}`;
+        // Создаем ссылку с безопасными атрибутами и инлайн-стилями для наследования цвета
+        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit !important; text-decoration: none !important; cursor: pointer !important;">${cleanUrl}</a>${trailingPunctuation}`;
     });
 }
 
