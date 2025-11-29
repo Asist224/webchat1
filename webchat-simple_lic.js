@@ -6367,7 +6367,10 @@ addMessageToUI(content, type, timestamp = null) {
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'webchat-message-content';
-        contentDiv.innerHTML = this.sanitizeHTML(content); // ✅ БЕЗОПАСНОСТЬ: Санитизация HTML
+
+        // ✅ ИСПРАВЛЕНИЕ: Применяем linkifyText даже для fallback сообщений
+        const linkedContent = this.linkifyText(content);
+        contentDiv.innerHTML = this.sanitizeHTML(linkedContent);
         contentDiv.style.opacity = '0.7'; // Показываем что это fallback
         contentDiv.style.fontStyle = 'italic';
         
@@ -6391,7 +6394,10 @@ addMessageToUI(content, type, timestamp = null) {
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'webchat-message-content';
-    contentDiv.innerHTML = this.sanitizeHTML(content); // ✅ БЕЗОПАСНОСТЬ: Санитизация HTML
+
+    // ✅ ИСПРАВЛЕНИЕ: Применяем linkifyText для восстановленных сообщений
+    const linkedContent = this.linkifyText(content);
+    contentDiv.innerHTML = this.sanitizeHTML(linkedContent);
 
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(contentDiv);
