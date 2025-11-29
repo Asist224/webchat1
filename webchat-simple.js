@@ -1270,6 +1270,7 @@ stopMonitoring() {
 
     init() {
         this.createChatWidget();
+        this.addLinkStyles(); // ✅ НОВОЕ: Добавляем стили для ссылок сразу
         this.setupEventListeners();
         // ✅ НОВОЕ: Настройка обработчиков времени
         this.setupScrollDateHandlers();
@@ -2622,6 +2623,37 @@ applyCustomAppearance() {
         }
     }
 
+// ✅ НОВАЯ ФУНКЦИЯ: Добавление стилей для кликабельных ссылок
+addLinkStyles() {
+    // Удаляем старые стили если есть
+    const oldLinkStyle = document.getElementById('webchat-link-styles');
+    if (oldLinkStyle) {
+        oldLinkStyle.remove();
+    }
+
+    const linkStyle = document.createElement('style');
+    linkStyle.id = 'webchat-link-styles';
+    linkStyle.textContent = `
+        /* Максимально специфичные стили для ссылок - полное наследование цвета текста */
+        .webchat-widget .webchat-message-content a,
+        .webchat-widget .webchat-message-content a:link,
+        .webchat-widget .webchat-message-content a:visited,
+        .webchat-widget .webchat-message-content a:hover,
+        .webchat-widget .webchat-message-content a:active,
+        .webchat-widget .webchat-message-content a:focus {
+            color: inherit !important;
+            text-decoration: none !important;
+            background: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-weight: inherit !important;
+            font-style: inherit !important;
+        }
+    `;
+    document.head.appendChild(linkStyle);
+    this.log('debug', '🔗 Стили для ссылок применены');
+}
+
    // Применение кастомных цветов
 applyCustomColors(colors) {
     // Цвета шапки
@@ -2680,31 +2712,6 @@ applyCustomColors(colors) {
         `;
         document.head.appendChild(style);
     }
-
-    // ✅ НОВОЕ: Стили для кликабельных ссылок в сообщениях
-    const linkStyle = document.createElement('style');
-    linkStyle.id = 'webchat-link-styles';
-    linkStyle.setAttribute('data-webchat-dynamic', 'true');
-    linkStyle.textContent = `
-        /* Стили для ссылок в сообщениях - наследуют цвет текста */
-        .webchat-widget .webchat-message-content a,
-        .webchat-widget .webchat-message-content a:link,
-        .webchat-widget .webchat-message-content a:visited,
-        .webchat-widget .webchat-message-content a:hover,
-        .webchat-widget .webchat-message-content a:active {
-            color: inherit !important;
-            text-decoration: none !important;
-            cursor: pointer;
-        }
-    `;
-
-    // Удаляем старые стили если есть
-    const oldLinkStyle = document.getElementById('webchat-link-styles');
-    if (oldLinkStyle) {
-        oldLinkStyle.remove();
-    }
-
-    document.head.appendChild(linkStyle);
 }
 
 // ✅ НОВОЕ: Добавление стилей для виджетов свернутого чата
