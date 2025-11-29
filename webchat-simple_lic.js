@@ -603,6 +603,32 @@ sanitizeHTML(html) {
     return cleaned.innerHTML;
 }
 
+    // ✅ НОВАЯ ФУНКЦИЯ: Преобразование URL в кликабельные ссылки
+linkifyText(text) {
+    if (!text) return '';
+
+    // Регулярное выражение для поиска URL (http, https)
+    const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+
+    // Заменяем URL на ссылки
+    return text.replace(urlRegex, (url) => {
+        // Убираем trailing знаки пунктуации, которые могут быть частью предложения
+        let cleanUrl = url;
+        let trailingPunctuation = '';
+
+        // Проверяем и удаляем trailing пунктуацию
+        const punctuationRegex = /([.,!?;:)\]]+)$/;
+        const match = cleanUrl.match(punctuationRegex);
+        if (match) {
+            trailingPunctuation = match[1];
+            cleanUrl = cleanUrl.slice(0, -trailingPunctuation.length);
+        }
+
+        // Создаем ссылку с безопасными атрибутами
+        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${cleanUrl}</a>${trailingPunctuation}`;
+    });
+}
+
     // ✅ ФУНКЦИЯ: Валидация текстового ввода (базовая проверка)
 validateTextInput(text, maxLength = 1000) {
     if (typeof text !== 'string') {
@@ -2873,6 +2899,33 @@ applyCustomColors(colors) {
         `;
         document.head.appendChild(style);
     }
+
+    // ✅ НОВОЕ: Стили для кликабельных ссылок в сообщениях
+    const linkStyle = document.createElement('style');
+    linkStyle.id = 'webchat-link-styles';
+    linkStyle.setAttribute('data-webchat-dynamic', 'true');
+    linkStyle.textContent = `
+        /* Стили для ссылок в сообщениях - наследуют цвет текста */
+        .webchat-widget .webchat-message-content a {
+            color: inherit !important;
+            text-decoration: underline;
+            text-decoration-color: currentColor;
+            text-underline-offset: 2px;
+            transition: opacity 0.2s ease;
+        }
+        .webchat-widget .webchat-message-content a:hover {
+            opacity: 0.7;
+            text-decoration-thickness: 2px;
+        }
+    `;
+
+    // Удаляем старые стили если есть
+    const oldLinkStyle = document.getElementById('webchat-link-styles');
+    if (oldLinkStyle) {
+        oldLinkStyle.remove();
+    }
+
+    document.head.appendChild(linkStyle);
 }
 
 // ✅ НОВОЕ: Добавление стилей для виджетов свернутого чата
@@ -4965,9 +5018,10 @@ addMessage(content, type) {
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'webchat-message-content';
-    
-    // ✅ ИСПРАВЛЕНИЕ: Безопасная вставка HTML с санитизацией
-    contentDiv.innerHTML = this.sanitizeHTML(content);
+
+    // ✅ ИСПРАВЛЕНИЕ: Безопасная вставка HTML с санитизацией и преобразованием ссылок
+    const linkedContent = this.linkifyText(content);
+    contentDiv.innerHTML = this.sanitizeHTML(linkedContent);
     
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(contentDiv);
@@ -5124,8 +5178,9 @@ async addMessageWithAnimation(content, type) {
     contentDiv.style.opacity = '1';
     await new Promise(resolve => setTimeout(resolve, 300)); // Ждем завершения fade-in контейнера
 
-    // Разбиваем контент на части
-    const sanitizedContent = this.sanitizeHTML(content);
+    // Разбиваем контент на части (с преобразованием ссылок)
+    const linkedContent = this.linkifyText(content);
+    const sanitizedContent = this.sanitizeHTML(linkedContent);
 
     // Простая разбивка: разделяем по предложениям с сохранением HTML
     let chunks = [];
