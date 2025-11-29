@@ -2906,16 +2906,14 @@ applyCustomColors(colors) {
     linkStyle.setAttribute('data-webchat-dynamic', 'true');
     linkStyle.textContent = `
         /* Стили для ссылок в сообщениях - наследуют цвет текста */
-        .webchat-widget .webchat-message-content a {
+        .webchat-widget .webchat-message-content a,
+        .webchat-widget .webchat-message-content a:link,
+        .webchat-widget .webchat-message-content a:visited,
+        .webchat-widget .webchat-message-content a:hover,
+        .webchat-widget .webchat-message-content a:active {
             color: inherit !important;
-            text-decoration: underline;
-            text-decoration-color: currentColor;
-            text-underline-offset: 2px;
-            transition: opacity 0.2s ease;
-        }
-        .webchat-widget .webchat-message-content a:hover {
-            opacity: 0.7;
-            text-decoration-thickness: 2px;
+            text-decoration: none !important;
+            cursor: pointer;
         }
     `;
 
